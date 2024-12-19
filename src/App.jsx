@@ -1,5 +1,11 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import Services from './pages/Services';
+import AboutUs from './pages/AboutUs';
+import Contact from './pages/Contact';
+import Blog from './pages/Blog';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
@@ -31,7 +37,13 @@ function App() {
     <AuthProvider>
       <Router>
         <div className="min-h-screen bg-gray-100">
+          <Navbar />
           <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/about" element={<AboutUs />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/blog" element={<Blog />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route
@@ -58,7 +70,7 @@ function App() {
                 </AdminRoute>
               }
             />
-            <Route path="/" element={<Navigate to="/dashboard" />} />
+            <Route path="/home" element={<Navigate to="/" />} />
           </Routes>
         </div>
       </Router>

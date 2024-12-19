@@ -1,6 +1,9 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Button } from "../components/ui/button";
+import { Input } from "../components/ui/input";
+import { Card, CardHeader, CardContent, CardFooter, CardTitle, CardDescription } from "../components/ui/card";
 
 function Login() {
   const [email, setEmail] = useState('');
@@ -24,80 +27,67 @@ function Login() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-400 to-purple-500 p-4">
-      <div className="max-w-md w-full bg-white bg-opacity-20 backdrop-blur-lg rounded-lg shadow-lg p-8">
-        <div className="text-center mb-8">
-          <img 
-            src="/logo.svg" 
-            alt="Timesheet App Logo" 
-            className="mx-auto w-20 h-20 mb-4 filter drop-shadow-lg"
-          />
-          <h2 className="text-4xl font-bold text-white mb-2">Welcome Back</h2>
-          <p className="text-gray-200">Please sign in to continue</p>
-        </div>
-        
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {error && (
-            <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-              <span className="block sm:inline">{error}</span>
-            </div>
-          )}
-          
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="email-address" className="sr-only">
-                Email address
-              </label>
-              <input
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-400 to-red-600 p-4">
+      <Card className="max-w-md w-full">
+        <CardHeader className="space-y-1 text-center">
+          <div className="flex justify-center mb-4">
+            <img 
+              src="/logo.svg" 
+              alt="Timesheet App Logo" 
+              className="w-20 h-20 filter drop-shadow-lg"
+            />
+          </div>
+          <CardTitle className="text-3xl font-bold">Welcome Back</CardTitle>
+          <CardDescription>Please sign in to continue</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit} className="space-y-4">
+            {error && (
+              <div className="bg-destructive/15 text-destructive text-sm px-4 py-3 rounded-lg" role="alert">
+                <span>{error}</span>
+              </div>
+            )}
+            
+            <div className="space-y-2">
+              <Input
                 id="email-address"
                 name="email"
                 type="email"
                 autoComplete="email"
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 focus:border-white focus:ring-2 focus:ring-white text-white placeholder-gray-200 outline-none transition-all"
                 placeholder="Email address"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
             
-            <div>
-              <label htmlFor="password" className="sr-only">
-                Password
-              </label>
-              <input
+            <div className="space-y-2">
+              <Input
                 id="password"
                 name="password"
                 type="password"
                 autoComplete="current-password"
                 required
-                className="w-full px-4 py-3 rounded-lg bg-white bg-opacity-20 border border-white border-opacity-30 focus:border-white focus:ring-2 focus:ring-white text-white placeholder-gray-200 outline-none transition-all"
                 placeholder="Password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              className="w-full px-4 py-3 rounded-lg bg-white text-purple-600 font-semibold hover:bg-opacity-90 transition-all duration-200 ease-in-out transform hover:scale-105"
-            >
+            <Button type="submit" className="w-full">
               Sign in
-            </button>
-          </div>
-        </form>
-        
-        <div className="mt-6 text-center">
+            </Button>
+          </form>
+        </CardContent>
+        <CardFooter className="flex justify-center">
           <Link 
             to="/register" 
-            className="text-white hover:text-gray-200 transition-colors duration-200"
+            className="text-sm text-muted-foreground hover:text-primary transition-colors"
           >
             Don't have an account? Register here
           </Link>
-        </div>
-      </div>
+        </CardFooter>
+      </Card>
     </div>
   );
 }
