@@ -56,9 +56,9 @@ jobs:
             mkdir -p ~/backups
             cp -r . ~/backups/backup_$timestamp
             
-            # Configure git pull strategy and pull latest changes
-            git config pull.rebase false
-            git pull origin main
+            # Reset to match remote state
+            git fetch origin
+            git reset --hard origin/main
             
             # Install dependencies
             npm ci
