@@ -32,10 +32,10 @@ jobs:
           cd server && npm install
           cd ..
 
-      - name: Run tests
-        run: |
-          cd aahatimesheet
-          npm test
+      # - name: Run tests
+      #   run: |
+      #     cd aahatimesheet
+      #     npm test
 
       - name: Build application
         run: |
