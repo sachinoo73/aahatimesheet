@@ -49,16 +49,25 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to app directory
+            # Create and navigate to app directory if it doesn't exist
+            mkdir -p ~/app
             cd ~/app
+
+            # Initialize git if not already initialized
+            if [ ! -d .git ]; then
+              git init
+              git remote add origin https://github.com/sachinoo73/aahatimesheet.git
+            fi
             
-            # Backup current version
-            timestamp=$(date +%Y%m%d_%H%M%S)
-            mkdir -p ~/backups
-            cp -r . ~/backups/backup_$timestamp
+            # Backup current version if exists
+            if [ -f package.json ]; then
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              mkdir -p ~/backups
+              cp -r . ~/backups/backup_$timestamp
+            fi
             
-            # Reset to match remote state
-            git fetch origin
+            # Fetch and reset to match remote state
+            git fetch origin main
             git reset --hard origin/main
             
             # Install dependencies
