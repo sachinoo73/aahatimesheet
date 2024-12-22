@@ -56,7 +56,8 @@ jobs:
             mkdir -p ~/backups
             cp -r . ~/backups/backup_$timestamp
             
-            # Pull latest changes
+            # Configure git pull strategy and pull latest changes
+            git config pull.rebase false
             git pull origin main
             
             # Install dependencies
