@@ -1,0 +1,51 @@
+name: Test Secrets
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Check AWS Credentials
+      run: |
+        if [ -z "${{ secrets.AWS_ACCESS_KEY_ID }}" ]; then
+          echo "❌ AWS_ACCESS_KEY_ID is empty"
+        else
+          echo "✅ AWS_ACCESS_KEY_ID is set (length: ${#AWS_ACCESS_KEY_ID})"
+        fi
+        
+        if [ -z "${{ secrets.AWS_SECRET_ACCESS_KEY }}" ]; then
+          echo "❌ AWS_SECRET_ACCESS_KEY is empty"
+        else
+          echo "✅ AWS_SECRET_ACCESS_KEY is set (length: ${#AWS_SECRET_ACCESS_KEY})"
+        fi
+        
+        if [ -z "${{ secrets.AWS_REGION }}" ]; then
+          echo "❌ AWS_REGION is empty"
+        else
+          echo "✅ AWS_REGION is set"
+        fi
+        
+        if [ -z "${{ secrets.EC2_HOST }}" ]; then
+          echo "❌ EC2_HOST is empty"
+        else
+          echo "✅ EC2_HOST is set"
+        fi
+        
+        if [ -z "${{ secrets.EC2_USERNAME }}" ]; then
+          echo "❌ EC2_USERNAME is empty"
+        else
+          echo "✅ EC2_USERNAME is set"
+        fi
+        
+        if [ -z "${{ secrets.EC2_SSH_KEY }}" ]; then
+          echo "❌ EC2_SSH_KEY is empty"
+        else
+          echo "✅ EC2_SSH_KEY is set (length: ${#EC2_SSH_KEY})"
+        fi
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        EC2_SSH_KEY: ${{ secrets.EC2_SSH_KEY }}
