@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import GoogleAuthProvider from './context/GoogleAuthProvider';
 import Navbar from './components/Navbar';
 import Home from './pages/Home';
 import Services from './pages/Services';
@@ -35,7 +36,8 @@ const AdminRoute = ({ children }) => {
 function App() {
   return (
     <AuthProvider>
-      <Router>
+      <GoogleAuthProvider>
+        <Router>
         <div className="min-h-screen bg-gray-100">
           <Navbar />
           <Routes>
@@ -73,7 +75,8 @@ function App() {
             <Route path="/home" element={<Navigate to="/" />} />
           </Routes>
         </div>
-      </Router>
+        </Router>
+      </GoogleAuthProvider>
     </AuthProvider>
   );
 }

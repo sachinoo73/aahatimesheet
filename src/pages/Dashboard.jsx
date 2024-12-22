@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 import { useAuth } from '../context/AuthContext';
+import Calendar from '../components/Calendar';
 
 function Dashboard() {
   const [timesheets, setTimesheets] = useState([]);
@@ -55,11 +56,19 @@ function Dashboard() {
                 onClick={() => navigate('/time-entry')}
                 className="bg-indigo-600 text-white px-4 py-2 rounded-md hover:bg-indigo-700"
               >
-                New Entry
+                Time Entry
               </button>
+              {user.isAdmin && (
+                <button
+                  onClick={() => navigate('/admin')}
+                  className="bg-purple-600 text-white px-4 py-2 rounded-md hover:bg-purple-700"
+                >
+                  Admin Dashboard
+                </button>
+              )}
               <button
                 onClick={handleLogout}
-                className="text-gray-600 hover:text-gray-900"
+                className="text-gray-600 hover:text-gray-900 px-4 py-2"
               >
                 Logout
               </button>
@@ -68,7 +77,14 @@ function Dashboard() {
         </div>
       </nav>
 
-      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+      <main className="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8 space-y-8">
+        {/* Calendar Section */}
+        <div className="bg-white overflow-hidden shadow rounded-lg">
+          <div className="px-4 py-5 sm:p-6">
+            <Calendar />
+          </div>
+        </div>
+
         {/* Summary Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
           <div className="bg-white overflow-hidden shadow rounded-lg">
