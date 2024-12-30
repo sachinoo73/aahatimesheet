@@ -27,8 +27,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm ci
-          cd server && npm ci
+          npm install
+          cd server && npm install
+          cd ..
 
       - name: Run tests
         run: npm test
@@ -48,21 +49,30 @@ jobs:
           username: ${{ secrets.EC2_USERNAME }}
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            # Navigate to app directory
+            # Create and navigate to app directory if it doesn't exist
+            mkdir -p ~/app
             cd ~/app
+
+            # Initialize git if not already initialized
+            if [ ! -d .git ]; then
+              git init
+              git remote add origin https://github.com/sachinoo73/aahatimesheet.git
+            fi
             
-            # Backup current version
-            timestamp=$(date +%Y%m%d_%H%M%S)
-            mkdir -p ~/backups
-            cp -r . ~/backups/backup_$timestamp
+            # Backup current version if exists
+            if [ -f package.json ]; then
+              timestamp=$(date +%Y%m%d_%H%M%S)
+              mkdir -p ~/backups
+              cp -r . ~/backups/backup_$timestamp
+            fi
             
-            # Reset to match remote state
-            git fetch origin
+            # Fetch and reset to match remote state
+            git fetch origin main
             git reset --hard origin/main
             
             # Install dependencies
-            npm ci
-            cd server && npm ci
+            npm install
+            cd server && npm install
             cd ..
             
             # Copy env file
@@ -72,35 +82,56 @@ jobs:
             # Build the application
             npm run build
             
-            # Restart the application with PM2
-            pm2 restart timesheet-app || pm2 start npm --name "timesheet-app" -- start
+            # Start the backend server with PM2
+            cd server
+            pm2 restart timesheet-backend || pm2 start server.js --name "timesheet-backend"
+            cd ..
             
+            # Install nginx if not installed
+            if ! command -v nginx &> /dev/null; then
+              sudo apt-get update
+              sudo apt-get install -y nginx
+            fi
+
+            # Install certbot if not installed
+            if ! command -v certbot &> /dev/null; then
+              sudo apt-get install -y certbot python3-certbot-nginx
+            fi
+
+            # Copy nginx configuration
+            sudo cp nginx.conf /etc/nginx/sites-available/timesheet
+            sudo ln -sf /etc/nginx/sites-available/timesheet /etc/nginx/sites-enabled/
+            sudo rm -f /etc/nginx/sites-enabled/default
+
+            # Get SSL certificate if not exists
+            if [ ! -d "/etc/letsencrypt/live/ec2-18-225-55-218.us-east-2.compute.amazonaws.com" ]; then
+              sudo certbot --nginx -d ec2-18-225-55-218.us-east-2.compute.amazonaws.com --non-interactive --agree-tos -m sachinkarki2050@gmail.com
+            fi
+
+            # Start the backend with PM2
+            cd server
+            pm2 restart timesheet-backend || pm2 start server.js --name "timesheet-backend"
+            cd ..
+
             # Save PM2 process list
             pm2 save
-            
-            # Verify deployment
-            if ! pm2 show timesheet-app > /dev/null 2>&1; then
-              echo "Deployment failed - rolling back"
+
+            # Verify backend is running
+            if ! pm2 show timesheet-backend > /dev/null 2>&1; then
+              echo "Backend failed to start - rolling back"
               cp -r ~/backups/backup_$timestamp/* .
-              pm2 restart timesheet-app
+              cd server
+              pm2 restart timesheet-backend
               exit 1
             fi
+
+            # Test nginx configuration
+            sudo nginx -t
+
+            # Restart nginx
+            sudo systemctl restart nginx
             
-            # Health check
-            for i in {1..6}; do
-              if curl -f http://localhost:3000/health; then
-                echo "Health check passed"
-                break
-              fi
-              if [ "$i" -eq 6 ]; then
-                echo "Health check failed - rolling back"
-                cp -r ~/backups/backup_$timestamp/* .
-                pm2 restart timesheet-app
-                exit 1
-              fi
-              echo "Waiting for service to be healthy..."
-              sleep 10
-            done
+            echo "Both services started successfully!"
             
             # Cleanup old backups (keep last 5)
             cd ~/backups && ls -t | tail -n +6 | xargs -I {} rm -rf {}
