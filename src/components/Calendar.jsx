@@ -2,19 +2,58 @@ import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import { useGoogleLogin } from '@react-oauth/google';
 import axios from 'axios';
 
 const Calendar = () => {
   const [events, setEvents] = useState([]);
   const [accessToken, setAccessToken] = useState(null);
+  const [googleAvailable, setGoogleAvailable] = useState(true);
 
-  const login = useGoogleLogin({
-    onSuccess: (tokenResponse) => {
-      setAccessToken(tokenResponse.access_token);
-    },
-    scope: 'https://www.googleapis.com/auth/calendar.events.readonly',
-  });
+  // Check if Google OAuth is available
+  useEffect(() => {
+    try {
+      // Dynamic import to avoid errors if Google OAuth is not configured
+      import('@react-oauth/google')
+        .then(module => {
+          const { useGoogleLogin } = module;
+          if (useGoogleLogin) {
+            setGoogleAvailable(true);
+          }
+        })
+        .catch(() => {
+          setGoogleAvailable(false);
+          console.error('Google OAuth is not available');
+        });
+    } catch (error) {
+      setGoogleAvailable(false);
+      console.error('Google OAuth is not available');
+    }
+  }, []);
+
+  // Mock login function when Google OAuth is not available
+  const login = () => {
+    if (!googleAvailable) {
+      console.error('Google OAuth is not properly configured');
+      return;
+    }
+    
+    try {
+      // Only import and use if available
+      import('@react-oauth/google').then(module => {
+        const { useGoogleLogin } = module;
+        const googleLogin = useGoogleLogin({
+          onSuccess: (tokenResponse) => {
+            setAccessToken(tokenResponse.access_token);
+          },
+          scope: 'https://www.googleapis.com/auth/calendar.events.readonly',
+        });
+        
+        googleLogin();
+      });
+    } catch (error) {
+      console.error('Failed to initialize Google login', error);
+    }
+  };
 
   useEffect(() => {
     if (accessToken) {

@@ -1,151 +1,175 @@
-# AAHA Timesheet Application
+# Timesheet Application
 
-A modern timesheet management system built with React, Node.js, and MongoDB.
-
-## Architecture
-
-See [architecture.md](./architecture.md) for a detailed system architecture diagram and documentation.
-
-## Features
-
-- User Authentication (Local + Google OAuth)
-- Time Entry Management
-- Calendar Integration
-- Admin Dashboard
-- Role-based Access Control
-- Responsive UI with Tailwind CSS
-
-## Prerequisites
-
-- Node.js (v14 or higher)
-- MongoDB
-- Google OAuth credentials (for Google Sign-in)
-- Git
-
-## Getting Started
-
-### Frontend Setup
-
-1. Clone the repository:
-```bash
-git clone [your-repo-url]
-cd aahatimesheet
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the root directory:
-```env
-VITE_GOOGLE_CLIENT_ID=your_google_client_id
-VITE_API_URL=http://localhost:5000
-```
-
-4. Start the development server:
-```bash
-npm run dev
-```
-
-The frontend will be available at `http://localhost:5173`
-
-### Backend Setup
-
-1. Navigate to the server directory:
-```bash
-cd server
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Create a `.env` file in the server directory:
-```env
-MONGODB_URI=your_mongodb_connection_string
-JWT_SECRET=your_jwt_secret
-GOOGLE_CLIENT_ID=your_google_client_id
-GOOGLE_CLIENT_SECRET=your_google_client_secret
-PORT=5000
-```
-
-4. Start the server:
-```bash
-npm start
-```
-
-The backend API will be available at `http://localhost:5000`
+A full-stack timesheet application for tracking work hours and managing employee time entries.
 
 ## Project Structure
 
+The project is organized into two main parts:
+
+### Frontend (React + Vite)
+- `src/` - Contains all React components, contexts, and pages
+  - `components/` - Reusable UI components
+  - `context/` - React context providers
+  - `pages/` - Application pages/routes
+  - `lib/` - Utility functions
+  - `assets/` - Static assets like images
+  - `mocks/` - Mock data for testing
+
+### Backend (Node.js + Express)
+- `server/` - Contains all server-side code
+  - `config/` - Configuration files (database connection)
+  - `middleware/` - Express middleware
+  - `models/` - Mongoose models
+  - `routes/` - API route handlers
+  - `tests/` - Server tests
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v16 or higher)
+- MongoDB
+
+### Installation
+
+1. Clone the repository
 ```
-aahatimesheet/
-├── src/                    # Frontend source code
-│   ├── components/         # Reusable React components
-│   ├── context/           # React context providers
-│   ├── pages/             # Page components
-│   ├── lib/               # Utility functions
-│   └── mocks/             # Testing mocks
-├── server/                # Backend source code
-│   ├── config/           # Server configuration
-│   ├── models/           # MongoDB models
-│   └── tests/            # Backend tests
-└── public/               # Static assets
+git clone <repository-url>
+cd timesheet-app
 ```
+
+2. Install frontend dependencies
+```
+npm install
+```
+
+3. Install backend dependencies
+```
+cd server
+npm install
+cd ..
+```
+
+4. Set up environment variables
+   - Create a `.env` file in the root directory for frontend variables
+   - Create a `.env` file in the server directory for backend variables
+
+5. Start the development server
+```
+# Start the frontend
+npm run dev
+
+# In a separate terminal, start the backend
+cd server
+npm run dev
+```
+
+## Features
+
+- User authentication (login/register)
+- Time entry tracking
+- Admin dashboard for managing users
+- Calendar view for timesheet entries
+- Responsive design
+
+## Database Structure
+
+The application uses MongoDB with the following structure:
+
+### Main Databases
+1. **aahatimesheet**
+   - Primary application database
+   - Collections:
+     - `customers`: Stores customer/client information
+     - `users`: Stores user accounts with embedded timesheet entries
+
+2. **admin**
+   - MongoDB system database for administrative functions
+
+3. **calendar_updater**
+   - Collections:
+     - `events`: Stores calendar events for the application
+
+4. **local**
+   - MongoDB system database for local operations
+
+5. **test**
+   - Test database
+   - Collections:
+     - `users`: Test user accounts
+
+6. **timesheet**
+   - Collections:
+     - `aahatimesheet`: Alternative storage for timesheet data
+
+### Data Models
+
+#### User Model
+- Schema includes:
+  - `name`: String (required)
+  - `email`: String (required, unique)
+  - `password`: String (required, hashed using bcrypt)
+  - `isAdmin`: Boolean (default: false)
+  - `hourlyRate`: Number (required, default: 0)
+  - `timesheets`: Array of embedded timesheet entries
+  - Timestamps: createdAt, updatedAt
+
+#### Timesheet Entry Schema (Embedded in User)
+- Schema includes:
+  - `date`: Date (required)
+  - `location`: String (required)
+  - `startTime`: String (required)
+  - `endTime`: String (required)
+  - `hoursWorked`: Number (required)
+  - Timestamps: createdAt, updatedAt
+
+## Technologies Used
+
+### Frontend
+- React
+- React Router
+- Tailwind CSS
+- Radix UI
+- FullCalendar
+- Axios
+
+### Backend
+- Node.js
+- Express
+- MongoDB with Mongoose
+- JWT Authentication
+- bcrypt for password hashing
+
+## API Documentation
+
+A Postman collection is included in the repository to help test and interact with the API endpoints:
+
+- **File**: `aahatimesheet-postman-collection.json`
+- **Import**: Open Postman and import the collection file
+- **Environment Setup**: 
+  - Set the `baseUrl` variable to your server URL (default: `http://localhost:5001`)
+  - The collection automatically saves authentication tokens from login/register responses
+
+### Available Endpoints
+
+#### Authentication
+- `POST /api/users/login` - User login
+- `POST /api/users/register` - User registration
+- `POST /api/users/admin-token` - Generate admin token (for initial setup)
+
+#### Timesheet
+- `GET /api/timesheet` - Get all timesheet entries
+- `POST /api/timesheet` - Create a new timesheet entry
+
+#### Admin
+- `GET /api/admin/users` - Get all users (admin only)
+- `POST /api/admin/users/admin` - Create a new admin user (admin only)
 
 ## Testing
 
-### Frontend Tests
-```bash
-npm test
 ```
+# Run frontend tests
+npm test
 
-### Backend Tests
-```bash
+# Run backend tests
 cd server
 npm test
-```
-
-## CI/CD
-
-The project uses Jenkins for continuous integration and deployment. See `Jenkinsfile` for the pipeline configuration.
-
-## Environment Variables
-
-### Frontend (.env)
-- `VITE_GOOGLE_CLIENT_ID`: Google OAuth client ID
-- `VITE_API_URL`: Backend API URL
-
-### Backend (.env)
-- `MONGODB_URI`: MongoDB connection string
-- `JWT_SECRET`: Secret for JWT token generation
-- `GOOGLE_CLIENT_ID`: Google OAuth client ID
-- `GOOGLE_CLIENT_SECRET`: Google OAuth client secret
-- `PORT`: Server port number
-
-## Available Scripts
-
-### Frontend
-- `npm run dev`: Start development server
-- `npm run build`: Build for production
-- `npm run preview`: Preview production build
-- `npm test`: Run tests
-
-### Backend
-- `npm start`: Start the server
-- `npm test`: Run backend tests
-- `npm run dev`: Start server with nodemon
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
